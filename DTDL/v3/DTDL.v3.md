@@ -1,4 +1,4 @@
-﻿# Digital Twins Definition Language (DTDL)
+﻿﻿# Digital Twins Definition Language (DTDL)
 
 **Version 3**
 
@@ -14,7 +14,7 @@ This version of DTDL is used for [Azure Digital Twins](https://azure.microsoft.c
 * [Command](#command)
 * [Relationship](#relationship)
 * [Component](#component)
-* [MathematicalEquation](#mathematicalequation)
+* [MathematicalEquation](#MathematicalEquation)
 * [Primitive schema](#primitive-schema)
 * [Array](#array)
 * [Enum](#enum)
@@ -93,8 +93,27 @@ The Interface has one Telemetry that reports the temperature measurement, and on
   "displayName": "Thermostat",
   "contents": [
     {
-      "@type": "Telemetry",* [MathematicalEquation](#mathematicalequation)
+      "@type": "Telemetry",
+      "name": "temp",
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "setPointTemp",
+      "writable": true,
+      "schema": "double"
+    }
+  ]
+}
+```
 
+The following Interface example shows a *Phone* device that has two cameras as Components, and the *DeviceInformation* Interface as another Component.
+
+> Note that for this model to be complete and valid, Interface definitions for "dtmi:com:example:Camera;3" and "dtmi:azure:deviceManagement:DeviceInformation;1" must be provided.
+
+```json
+{
+  "@context": "dtmi:dtdl:context;3",
   "@id": "dtmi:com:example:Phone;2",
   "@type": "Interface",
   "displayName": "Phone",
@@ -127,8 +146,53 @@ The following Interface example shows a digital twin model of a building that ha
   "@context": "dtmi:dtdl:context;3",
   "@id": "dtmi:com:example:Building;1",
   "@type": "Interface",
-  "displayName": "Building",* [MathematicalEquation](#mathematicalequation)
+  "displayName": "Building",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "name",
+      "schema": "string",
+      "writable": true
+    },
+    {
+      "@type": "Relationship",
+      "name": "contains",
+      "target": "dtmi:com:example:Room;1"
+    }
+  ]
+}
+```
 
+The following Interface example shows how Interface inheritance can be used to create specialized Interfaces from more general Interfaces by inheriting the `contents` of the latter.
+In this example, the *ConferenceRoom* Interface inherits `contents` from the *Room* Interface.
+Through inheritance, the *ConferenceRoom* has two Properties: the *occupied* Property (from *Room*) and the *capacity* Property (from *ConferenceRoom*).
+
+```json
+[
+  {
+    "@context": "dtmi:dtdl:context;3",
+    "@id": "dtmi:com:example:Room;1",
+    "@type": "Interface",
+    "contents": [
+      {
+        "@type": "Property",
+        "name": "occupied",
+        "schema": "boolean"
+      }
+    ]
+  },
+  {
+    "@context": "dtmi:dtdl:context;3",
+    "@id": "dtmi:com:example:ConferenceRoom;1",
+    "@type": "Interface",
+    "extends": "dtmi:com:example:Room;1",
+    "contents": [
+      {
+        "@type": "Property",
+        "name": "capacity",
+        "schema": "integer"
+      }
+    ]
   }
 ]
 ```
@@ -151,7 +215,28 @@ The chart below lists the properties that Telemetry may have.
 | `description` | optional | localizable *string* | max 512 characters | A localizable description for display. |
 | `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
 | `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric; must be unique for all contents in Interface | The programming name of the element. |
-| `schema` | required | [Schema](#schema) |  | The data tyComponent
+| `schema` | required | [Schema](#schema) |  | The data type of the Telemetry, which is an instance of Schema. |
+
+### Telemetry examples
+
+The following example shows a simple Telemetry definition of a temperature measurement, with the data type *double*.
+
+```json
+{
+  "@type": "Telemetry",
+  "name": "temp",
+  "schema": "double"
+}
+```
+
+When JSON is used to serialize Telemetry data, this example shows the serialized Telemetry data for the Telemetry model definition above.
+
+```json
+"temp": 42.5
+```
+
+## Property
+
 A Property describes the read-only and read/write state of any digital twin.
 For example, a device serial number may be a read-only Property; the desired temperature on a thermostat may be a read-write Property; and the name of a room may be a read-write Property.
 
@@ -176,45 +261,38 @@ The chart below lists the properties that a DTDL Property may have.
 
 The following example shows a Property definition of a writable temperature set-point, with the data type *double*.
 
-```json
-{
-  "@type": "Property",
-  "name": "setPointTemp",
-  "schema": "double",
-  "writable": true
-}
-```
-
-## Command
-Component
-    "displayName": "Reboot Time",
-    "description": "Requested time to reboot the device.",
-    "schema": "dateTime"
-  },
-  "response": {
-    "name": "scheduledTime",
-    "schema": "dateTime"
-  }
-}
-```
-
-### CommandRequest
-
-A CommandRequest describes the inputs to a Command.
-
-The chart below lists the properties that CommandRequest may have.
-
-| Property | Required | Data type | Limits | Description |
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }ta type | Limits | Description |
 | --- | --- | --- | --- | --- |
-| `@type` | optional | [IRI](#internationalized-resource-identifier) |  | If provided, must be "CommandRequest". |
-| `@id` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters | An identifer for the CommandRequest. If no @id is provided, one will be assigned automatically. |
+| `@type` | required | [IRI](#internationalized-resource-identifier) |  | This must be "Command". |
+| `@id` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters | An identifer for the Command. If no @id is provided, one will be assigned automatically. |
 | `comment` | optional | *string* | max 512 characters | A comment for model authors. |
 | `description` | optional | localizable *string* | max 512 characters | A localizable description for display. |
 | `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
-| `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric | The programming name of the element. |
-| `schema` | required | [Schema](#schema) |  | The data type of the element, which is an instance of Schema. |
-
-### CommandResponse
+| `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric; must be unique for all contents in Interface | The programming name of the element. |
+| `request` | optional | [
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }
 
 A CommandResponse describes the outputs from a Command.
 
@@ -229,22 +307,41 @@ The chart below lists the properties that CommandResponse may have.
 | `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
 | `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric | The programming name of the element. |
 | `schema` | required | [Schema](#schema) |  | The data type of the element, which is an instance of Schema. |
-Componentst be = 0 | The minimum multiplicity for the target of the Relationship; defaults to the minimum allowable value. |
+
+## Relationship
+
+A Relationship describes a link to another digital twin and enables graphs of digital twins to be created.
+A Relationship is different from a [Component](#component) because it describes a link to a separate digital twin.
+
+The chart below lists the properties that a Relationship may have.
+
+> Note that the datatype of the `target` property is DTMI, in contrast to the datatype of the `schema` property of Component, which is Interface.
+A Component has "by value" semantics, so it is not valid unless its `schema` property identifies a valid Interface.
+A Relationship has "by reference" semantics, so its validity does not depend on the identity of its `target` property (although a Relationship with a non-Interface `target` value will have minimal utility.)
+
+| Property | Required | Data type | Limits | Description |
+| --- | --- | --- | --- | --- |
+| `@type` | required | [IRI](#internationalized-resource-identifier) |  | This must be "Relationship". |
+| `@id` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters | An identifer for the Relationship. If no @id is provided, one will be assigned automatically. |
+| `comment` | optional | *string* | max 512 characters | A comment for model authors. |
+| `description` | optional | localizable *string* | max 512 characters | A localizable description for display. |
+| `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
+| `maxMultiplicity` | optional | *integer* | must be >= 1 | The maximum multiplicity for the target of the Relationship; defaults to the maximum allowable value. |
+| `minMultiplicity` | optional | *integer* | must be = 0 | The minimum multiplicity for the target of the Relationship; defaults to the minimum allowable value. |
 | `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric; must be unique for all contents in Interface | The programming name of the element. |
-| `properties` | optional | set of [Properties](#property) |  | A set of Properties that define Relationship-specific state. |
-| `target` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters; must follow user DTMI syntax | An Interface identifier. If no target is specified, each instance target is permitted to be any Interface. |
-| `writable` | optional | *boolean* |  | A boolean value that indicates whether the Relationship is writable or not. The default value is false, indicating the Relationship is read-only. |
-
-### Relationship examples
-
-The following example defines a Relationship to be had with a *Floor* twin.
-In this example, there must be zero or one Relationship instances of floor.
-
-```json
-{
-  "@type": "Relationship",
-  "name": "floor",
-  "minMultiplicity": 0,
+| `properties`
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }city": 0,
   "maxMultiplicity": 1,
   "target": "dtmi:com:example:Floor;1"
 }
@@ -333,7 +430,18 @@ An EquationType is an Enum that specifies the type of the equation.
 
 | Name         | Value      | Description         |
 | ------------ | ---------- | ------------------- |
-| Algebraic    | "algebraic"| Algebraic equation |ComponentDefault value (if any).     |
+| Algebraic    | "algebraic"| Algebraic equation |
+| Differential | "differential" | Differential equation |
+
+### Parameter
+
+A Parameter describes a variable used in a mathEquation.
+
+| Property   | Required | Data type | Description                  |
+| ---------- | -------- | --------- | ---------------------------- |
+| `name`     | required | *string*  | Name of the parameter.       |
+| `schema`   | required | [Schema](#schema) | Data type of the parameter. |
+| `value`    | optional | *number* or *string* | Default value (if any).     |
 
 ### References
 
@@ -366,6 +474,8 @@ A References entry describes an input to the equation.
   }
 }
 ```
+
+
 
 ## Schema
 
@@ -420,8 +530,24 @@ The chart below lists the properties that an Array may have.
 
 ### Array examples
 
-```json* [MathematicalEquation](#mathematicalequation)
+```json
+{
+  "@type": "Telemetry",
+  "name": "ledState",
+  "schema": {
+    "@type": "Array",
+    "elementSchema": "boolean"
+  }
+}
+```
 
+When JSON is used to serialize Array data, this example shows the serialized Array data for the Array model definition above.
+
+```json
+"ledState": [ true, true, false, true, false, true, true, false ]
+```
+
+## Enum
 
 An Enum describes a data type with a set of named labels that map to values.
 An Enum has integer or string values, and its labels are strings.
@@ -926,4 +1052,3 @@ The chart below lists the language extensions that are currently available for u
 * CommandPayload has been replaced by [CommandRequest](#commandrequest) and [CommandResponse](#commandresponse); this will not affect most models because for these types the `@type` property is optional.
 * Semantic Types are no longer part of the native DTDL language; use of a Semantic Type requires the [QuantitativeTypes](./DTDL.quantitativeTypes.v1.md) feature extension.  See the documentation on [DTDL language extensions](./DTDL.Extensions.md) for an explanation of use.
 * [Digital Twin Model Identifier](#digital-twin-model-identifier)s now support a form with no version suffix and a form with a two-part (major.minor) version suffix.
-
