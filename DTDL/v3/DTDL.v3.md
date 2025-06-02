@@ -25,6 +25,7 @@ This version of DTDL is used for [Azure Digital Twins](https://azure.microsoft.c
 * [Additional concerns](#additional-concerns)
 * [Language extensions](#language-extensions)
 * [Changes from Version 2](#changes-from-version-2)
+* [Mathematical Equation](#mathematical-equation)
 
 ## Introduction
 
@@ -1011,4 +1012,72 @@ The chart below lists the language extensions that are currently available for u
 * CommandPayload has been replaced by [CommandRequest](#commandrequest) and [CommandResponse](#commandresponse); this will not affect most models because for these types the `@type` property is optional.
 * Semantic Types are no longer part of the native DTDL language; use of a Semantic Type requires the [QuantitativeTypes](./DTDL.quantitativeTypes.v1.md) feature extension.  See the documentation on [DTDL language extensions](./DTDL.Extensions.md) for an explanation of use.
 * [Digital Twin Model Identifier](#digital-twin-model-identifier)s now support a form with no version suffix and a form with a two-part (major.minor) version suffix.
+
+## Mathematical Equation
+
+A Mathematical Equation describes a mathematical relationship (algebraic or differential) within a digital twin model.
+
+The chart below lists the properties that a mathEquation may have.
+
+| Property      | Required | Data type                | Limits | Description                                          |
+| ------------- | -------- | ------------------------ | ------ | ---------------------------------------------------- |
+| `@type`       | required | [IRI](#internationalized-resource-identifier) |  | This must be "mathEquation".                         |
+| `@id`         | optional | [DTMI](#digital-twin-model-identifier)         | max 2048 characters | An identifier for the mathEquation. If not provided, one will be assigned automatically. |
+| `name`        | required | *string*                 | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric | The programming name of the element. |
+| `equation`    | required | *string*                 |        | The mathematical equation, expressed as a string.    |
+| `equationType`| required | [EquationType](#equationtype) | | The type of equation: Algebraic or Differential.     |
+| `parameters`  | optional | array of [Parameter](#parameter) | | Array of parameters used in the equation.            |
+| `inputs`      | optional | array of [References](#references) | | References to other properties/inputs.               |
+| `initialValues`| optional | [Object](#object)        |        | Initial state values for equations (for diff. eqns.) |
+
+### EquationType
+
+An EquationType is an Enum that specifies the type of the equation.
+
+| Name         | Value      | Description         |
+| ------------ | ---------- | ------------------- |
+| Algebraic    | "algebraic"| Algebraic equation |
+| Differential | "differential" | Differential equation |
+
+### Parameter
+
+A Parameter describes a variable used in a mathEquation.
+
+| Property   | Required | Data type | Description                  |
+| ---------- | -------- | --------- | ---------------------------- |
+| `name`     | required | *string*  | Name of the parameter.       |
+| `schema`   | required | [Schema](#schema) | Data type of the parameter. |
+| `value`    | optional | *number* or *string* | Default value (if any).     |
+
+### References
+
+A References entry describes an input to the equation.
+
+| Property   | Required | Data type | Description                  |
+| ---------- | -------- | --------- | ---------------------------- |
+| `name`     | required | *string*  | Name of the input.           |
+| `target`   | required | [DTMI](#digital-twin-model-identifier) | Reference to the input property. |
+
+### mathEquation Example
+
+```json
+{
+  "@type": "mathEquation",
+  "name": "massSpringDamper",
+  "equation": "m * d2x/dt2 + c * dx/dt + k * x = F",
+  "equationType": "differential",
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }
+}
+```
 
