@@ -1,4 +1,4 @@
-﻿# Digital Twins Definition Language (DTDL)
+﻿﻿# Digital Twins Definition Language (DTDL)
 
 **Version 3**
 
@@ -14,6 +14,7 @@ This version of DTDL is used for [Azure Digital Twins](https://azure.microsoft.c
 * [Command](#command)
 * [Relationship](#relationship)
 * [Component](#component)
+* [MathematicalEquation](#MathematicalEquation)
 * [Primitive schema](#primitive-schema)
 * [Array](#array)
 * [Enum](#enum)
@@ -260,22 +261,18 @@ The chart below lists the properties that a DTDL Property may have.
 
 The following example shows a Property definition of a writable temperature set-point, with the data type *double*.
 
-```json
-{
-  "@type": "Property",
-  "name": "setPointTemp",
-  "schema": "double",
-  "writable": true
-}
-```
-
-## Command
-
-A Command describes a function or operation that can be performed on any digital twin.
-
-The chart below lists the properties that a DTDL Command may have.
-
-| Property | Required | Data type | Limits | Description |
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }ta type | Limits | Description |
 | --- | --- | --- | --- | --- |
 | `@type` | required | [IRI](#internationalized-resource-identifier) |  | This must be "Command". |
 | `@id` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters | An identifer for the Command. If no @id is provided, one will be assigned automatically. |
@@ -283,45 +280,19 @@ The chart below lists the properties that a DTDL Command may have.
 | `description` | optional | localizable *string* | max 512 characters | A localizable description for display. |
 | `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
 | `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric; must be unique for all contents in Interface | The programming name of the element. |
-| `request` | optional | [CommandRequest](#commandrequest) |  | A description of the input to the Command. |
-| `response` | optional | [CommandResponse](#commandresponse) |  | A description of the output of the Command. |
-
-### Command examples
-
-```json
-{
-  "@type": "Command",
-  "name": "reboot",
-  "request": {
-    "name": "rebootTime",
-    "displayName": "Reboot Time",
-    "description": "Requested time to reboot the device.",
-    "schema": "dateTime"
-  },
-  "response": {
-    "name": "scheduledTime",
-    "schema": "dateTime"
+| `request` | optional | [
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
   }
-}
-```
-
-### CommandRequest
-
-A CommandRequest describes the inputs to a Command.
-
-The chart below lists the properties that CommandRequest may have.
-
-| Property | Required | Data type | Limits | Description |
-| --- | --- | --- | --- | --- |
-| `@type` | optional | [IRI](#internationalized-resource-identifier) |  | If provided, must be "CommandRequest". |
-| `@id` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters | An identifer for the CommandRequest. If no @id is provided, one will be assigned automatically. |
-| `comment` | optional | *string* | max 512 characters | A comment for model authors. |
-| `description` | optional | localizable *string* | max 512 characters | A localizable description for display. |
-| `displayName` | optional | localizable *string* | max 512 characters | A localizable name for display. |
-| `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric | The programming name of the element. |
-| `schema` | required | [Schema](#schema) |  | The data type of the element, which is an instance of Schema. |
-
-### CommandResponse
 
 A CommandResponse describes the outputs from a Command.
 
@@ -358,20 +329,19 @@ A Relationship has "by reference" semantics, so its validity does not depend on 
 | `maxMultiplicity` | optional | *integer* | must be >= 1 | The maximum multiplicity for the target of the Relationship; defaults to the maximum allowable value. |
 | `minMultiplicity` | optional | *integer* | must be = 0 | The minimum multiplicity for the target of the Relationship; defaults to the minimum allowable value. |
 | `name` | required | *string* | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric; must be unique for all contents in Interface | The programming name of the element. |
-| `properties` | optional | set of [Properties](#property) |  | A set of Properties that define Relationship-specific state. |
-| `target` | optional | [DTMI](#digital-twin-model-identifier) | max 2048 characters; must follow user DTMI syntax | An Interface identifier. If no target is specified, each instance target is permitted to be any Interface. |
-| `writable` | optional | *boolean* |  | A boolean value that indicates whether the Relationship is writable or not. The default value is false, indicating the Relationship is read-only. |
-
-### Relationship examples
-
-The following example defines a Relationship to be had with a *Floor* twin.
-In this example, there must be zero or one Relationship instances of floor.
-
-```json
-{
-  "@type": "Relationship",
-  "name": "floor",
-  "minMultiplicity": 0,
+| `properties`
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }city": 0,
   "maxMultiplicity": 1,
   "target": "dtmi:com:example:Floor;1"
 }
@@ -435,6 +405,77 @@ The chart below lists the properties that a Component may have.
   "schema": "dtmi:com:example:Camera;3"
 }
 ```
+
+
+## MathematicalEquation
+
+A Mathematical Equation describes a mathematical relationship (algebraic or differential) within a digital twin model.
+
+The chart below lists the properties that a mathEquation may have.
+
+| Property      | Required | Data type                | Limits | Description                                          |
+| ------------- | -------- | ------------------------ | ------ | ---------------------------------------------------- |
+| `@type`       | required | [IRI](#internationalized-resource-identifier) |  | This must be "mathEquation".                         |
+| `@id`         | optional | [DTMI](#digital-twin-model-identifier)         | max 2048 characters | An identifier for the mathEquation. If not provided, one will be assigned automatically. |
+| `name`        | required | *string*                 | max 512 characters; contains only alphanumerics and underscore, starting with a letter, ending with alphanumeric | The programming name of the element. |
+| `equation`    | required | *string*                 |        | The mathematical equation, expressed as a string.    |
+| `equationType`| required | [EquationType](#equationtype) | | The type of equation: Algebraic or Differential.     |
+| `parameters`  | optional | array of [Parameter](#parameter) | | Array of parameters used in the equation.            |
+| `inputs`      | optional | array of [References](#references) | | References to other properties/inputs.               |
+| `initialValues`| optional | [Object](#object)        |        | Initial state values for equations (for diff. eqns.) |
+
+### EquationType
+
+An EquationType is an Enum that specifies the type of the equation.
+
+| Name         | Value      | Description         |
+| ------------ | ---------- | ------------------- |
+| Algebraic    | "algebraic"| Algebraic equation |
+| Differential | "differential" | Differential equation |
+
+### Parameter
+
+A Parameter describes a variable used in a mathEquation.
+
+| Property   | Required | Data type | Description                  |
+| ---------- | -------- | --------- | ---------------------------- |
+| `name`     | required | *string*  | Name of the parameter.       |
+| `schema`   | required | [Schema](#schema) | Data type of the parameter. |
+| `value`    | optional | *number* or *string* | Default value (if any).     |
+
+### References
+
+A References entry describes an input to the equation.
+
+| Property   | Required | Data type | Description                  |
+| ---------- | -------- | --------- | ---------------------------- |
+| `name`     | required | *string*  | Name of the input.           |
+| `target`   | required | [DTMI](#digital-twin-model-identifier) | Reference to the input property. |
+
+### mathEquation Example
+
+```json
+{
+  "@type": "mathEquation",
+  "name": "massSpringDamper",
+  "equation": "m * d2x/dt2 + c * dx/dt + k * x = F",
+  "equationType": "differential",
+  "parameters": [
+    { "name": "m", "schema": "double", "value": 1.0 },
+    { "name": "c", "schema": "double", "value": 0.5 },
+    { "name": "k", "schema": "double", "value": 10.0 }
+  ],
+  "inputs": [
+    { "name": "F", "target": "dtmi:com:example:Force;1" }
+  ],
+  "initialValues": {
+    "x": 0.0,
+    "dx/dt": 0.0
+  }
+}
+```
+
+
 
 ## Schema
 
@@ -1011,4 +1052,3 @@ The chart below lists the language extensions that are currently available for u
 * CommandPayload has been replaced by [CommandRequest](#commandrequest) and [CommandResponse](#commandresponse); this will not affect most models because for these types the `@type` property is optional.
 * Semantic Types are no longer part of the native DTDL language; use of a Semantic Type requires the [QuantitativeTypes](./DTDL.quantitativeTypes.v1.md) feature extension.  See the documentation on [DTDL language extensions](./DTDL.Extensions.md) for an explanation of use.
 * [Digital Twin Model Identifier](#digital-twin-model-identifier)s now support a form with no version suffix and a form with a two-part (major.minor) version suffix.
-
