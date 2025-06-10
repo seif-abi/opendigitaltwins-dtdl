@@ -92,6 +92,18 @@
   "metamodel": { "@id": "dtmi:dtdl:meta:metamodel;3" },
   "model": { "@id": "dtmi:dtdl:meta:model;3" },
 
+
+  "mathEquation": { "@id": "dtmi:dtdl:class:mathEquation;3" },
+  "equation": { "@id": "dtmi:dtdl:property:equation;3", "@type": "@vocab" },
+  "equationType": { "@id": "dtmi:dtdl:property:equationType;3", "@type": "@vocab" },
+  "parameters": { "@id": "dtmi:dtdl:property:parameters;3", "@type": "@vocab" },
+  "inputs": { "@id": "dtmi:dtdl:property:inputs;3", "@type": "@vocab" },
+  "initialValues": { "@id": "dtmi:dtdl:property:initialValues;3", "@type": "@vocab" },
+
+  "algebraic": { "@id": "dtmi:dtdl:instance:equationType:algebraic;3" },
+  "differential": { "@id": "dtmi:dtdl:instance:equationType:differential;3" },
+
+
   "AdjunctType": { "@id": "dtmi:dtdl:class:AdjunctType;3" },
   "Alias": { "@id": "dtmi:dtdl:class:Alias;3" },
   "Array": { "@id": "dtmi:dtdl:class:Array;3" },
